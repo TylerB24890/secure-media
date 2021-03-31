@@ -36,8 +36,13 @@ class S3Client {
 
 		$params = array( 'version' => 'latest' );
 
-		$params['credentials']['key']    = $settings['s3_access_key_id'];
-		$params['credentials']['secret'] = $settings['s3_secret_access_key'];
+		/**
+		 * Passing credentials parameters not required when assuming IAM Role
+		 */
+		if ( ! Utils\use_iam_role() ) {
+			$params['credentials']['key']    = $settings['s3_access_key_id'];
+			$params['credentials']['secret'] = $settings['s3_secret_access_key'];
+		}
 
 		$params['signature'] = 'v4';
 		$params['region']    = $settings['s3_region'];

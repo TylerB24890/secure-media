@@ -57,7 +57,8 @@ function ms_save_settings() {
  * @since 1.0
  */
 function ms_settings() {
-	$setting = Utils\get_settings();
+	$setting  = Utils\get_settings();
+	$disabled = Utils\use_iam_role();
 	?>
 
 	<h2><?php esc_html_e( 'Secure Media', 'secure-media' ); ?></h2>
@@ -67,13 +68,35 @@ function ms_settings() {
 			<tr>
 				<th scope="row"><?php esc_html_e( 'AWS S3 Access Key ID', 'secure-media' ); ?></th>
 				<td>
-					<input name="sm_settings[s3_access_key_id]" type="text" id="sm_s3_access_key_id" value="<?php echo esc_attr( $setting['s3_access_key_id'] ); ?>" class="regular-text">
+					<input name="sm_settings[s3_access_key_id]" type="text" id="sm_s3_access_key_id" value="<?php echo esc_attr( $setting['s3_access_key_id'] ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>> 
+					<?php if ( $disabled ) : ?>
+						<label for="sm_s3_access_key_id">
+						<?php
+						printf(
+							// Translators: %s: AWS Credentials File Name
+							esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
+							wp_kses( '<code>.credentials</code>', [ 'code' ] )
+						);
+						?>
+						</label>
+					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>
 				<th scope="row"><?php esc_html_e( 'AWS S3 Secret Access Key', 'secure-media' ); ?></th>
 				<td>
-					<input name="sm_settings[s3_secret_access_key]" type="password" id="sm_s3_secret_access_key" value="<?php echo esc_attr( $setting['s3_secret_access_key'] ); ?>" class="regular-text">
+					<input name="sm_settings[s3_secret_access_key]" type="password" id="sm_s3_secret_access_key" value="<?php echo esc_attr( $setting['s3_secret_access_key'] ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>> 
+					<?php if ( $disabled ) : ?>
+						<label for="sm_s3_access_key_id">
+						<?php
+						printf(
+							// Translators: %s: AWS Credentials File Name
+							esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
+							wp_kses( '<code>.credentials</code>', [ 'code' ] )
+						);
+						?>
+						</label>
+					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>
@@ -202,12 +225,22 @@ function s3_serve_from_wp() {
  * @since 1.0
  */
 function s3_bucket_field() {
-	$value = Utils\get_settings( 's3_bucket' );
+	$value    = Utils\get_settings( 's3_bucket' );
+	$disabled = Utils\use_iam_role();
 	?>
 
-	<input name="sm_settings[s3_bucket]" type="text" id="sm_s3_bucket" value="<?php echo esc_attr( $value ); ?>" class="regular-text"> <?php echo esc_html_e( 'Make sure this bucket is created and configured in AWS.', 'secure-media' ); ?>
+	<input name="sm_settings[s3_bucket]" type="text" id="sm_s3_bucket" value="<?php echo esc_attr( $value ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>>
 
 	<?php
+	if ( $disabled ) {
+		printf(
+			// Translators: %s: AWS Credentials File Name
+			esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
+			wp_kses( '<code>.credentials</code>', [ 'code' => true ] )
+		);
+	} else {
+		echo esc_html_e( 'Make sure this bucket is created and configured in AWS.', 'secure-media' );
+	}
 }
 
 /**
@@ -230,12 +263,22 @@ function s3_region_field() {
  * @since 1.0
  */
 function s3_secret_key_field() {
-	$value = Utils\get_settings( 's3_secret_access_key' );
+	$value    = Utils\get_settings( 's3_secret_access_key' );
+	$disabled = Utils\use_iam_role();
 	?>
 
-	<input name="sm_settings[s3_secret_access_key]" type="password" id="sm_s3_secret_access_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
+	<input name="sm_settings[s3_secret_access_key]" type="password" id="sm_s3_secret_access_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>>
 
 	<?php
+	if ( $disabled ) {
+		printf(
+			// Translators: %s: AWS Credentials File Name
+			esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
+			wp_kses( '<code>.credentials</code>', [ 'code' => true ] )
+		);
+	} else {
+		echo esc_html_e( 'Make sure this bucket is created and configured in AWS.', 'secure-media' );
+	}
 }
 
 /**
@@ -244,10 +287,20 @@ function s3_secret_key_field() {
  * @since 1.0
  */
 function s3_access_key_field() {
-	$value = Utils\get_settings( 's3_access_key_id' );
+	$value    = Utils\get_settings( 's3_access_key_id' );
+	$disabled = Utils\use_iam_role();
 	?>
 
-	<input name="sm_settings[s3_access_key_id]" type="text" id="sm_s3_access_key_id" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
+	<input name="sm_settings[s3_access_key_id]" type="text" id="sm_s3_access_key_id" value="<?php echo esc_attr( $value ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>> 
 
 	<?php
+	if ( $disabled ) {
+		printf(
+			// Translators: %s: AWS Credentials File Name
+			esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
+			wp_kses( '<code>.credentials</code>', [ 'code' => true ] )
+		);
+	} else {
+		echo esc_html_e( 'Make sure this bucket is created and configured in AWS.', 'secure-media' );
+	}
 }
