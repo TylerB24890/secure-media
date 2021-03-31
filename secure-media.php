@@ -28,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'SM_URL', plugin_dir_url( __FILE__ ) );
 define( 'SM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SM_VERSION', '1.0.5' );
+define( 'SM_IAM_ROLE', true );
 
 require_once __DIR__ . '/inc/utils.php';
 

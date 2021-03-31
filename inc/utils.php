@@ -63,3 +63,14 @@ function get_settings( $setting_key = null ) {
 
 	return $settings;
 }
+
+/**
+ * Determine if we should authenticate with an instance IAM Role.
+ * This requires an EC2 Instance with an assumed IAM Role with S3 Bucket Access.
+ *
+ * @see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2.html
+ * @return boolean
+ */
+function use_iam_role() {
+	return defined( 'SM_IAM_ROLE' ) && SM_IAM_ROLE;
+}
