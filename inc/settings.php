@@ -117,6 +117,20 @@ function ms_settings() {
 					<input name="sm_settings[s3_serve_from_wp]" type="checkbox" id="sm_s3_serve_from_wp" value="1" <?php checked( true, (bool) $setting['s3_serve_from_wp'] ); ?>> <label for="sm_s3_serve_from_wp"><?php esc_html_e( 'Store and serve public media from WordPress', 'secure-media' ); ?></label>
 				</td>
 			</tr>
+			<?php if ( Utils\s3_is_encrypted() ) : ?>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'ARN Key', 'secure-media' ); ?></th>
+					<td>
+						<input name="sm_settings[s3_arn_key]" type="text" id="sm_s3_arn_key" value="<?php echo esc_attr( $setting['s3_arn_key'] ); ?>" class="regular-text">
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Encryption Algorithm', 'secure-media' ); ?></th>
+					<td>
+						<input name="sm_settings[s3_encryption_algorithm]" type="text" id="sm_s3_encryption_algorithm" value="<?php echo esc_attr( $setting['s3_encryption_algorithm'] ); ?>" class="regular-text">
+					</td>
+				</tr>
+			<?php endif; ?>
 		</tbody>
 	</table>
 
@@ -203,6 +217,60 @@ function register_settings() {
 		'media',
 		'sm_aws'
 	);
+
+	add_settings_field(
+		's3_arn_key',
+		esc_html__( 'ARN Key', 'secure-media' ),
+		__NAMESPACE__ . '\s3_arn_key',
+		'media',
+		'sm_aws'
+	);
+
+	add_settings_field(
+		's3_encryption_algorithm',
+		esc_html__( 'Encryption Algorithm', 'secure-media' ),
+		__NAMESPACE__ . '\s3_encryption_algorithm',
+		'media',
+		'sm_aws'
+	);
+}
+
+/**
+ * Output S3 Encryption Algorithm
+ *
+ * @since 1.0
+ */
+function s3_encryption_algorithm() {
+
+	if ( ! Utils\s3_is_encrypted() ) {
+		return;
+	}
+
+	$value = Utils\get_settings( 's3_encryption_algorithm' );
+	?>
+
+	<input name="sm_settings[s3_encryption_algorithm]" type="text" id="sm_s3_encryption_algorithm" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
+
+	<?php
+}
+
+/**
+ * Output S3 ARN Key
+ *
+ * @since 1.0
+ */
+function s3_arn_key() {
+
+	if ( ! Utils\s3_is_encrypted() ) {
+		return;
+	}
+
+	$value = Utils\get_settings( 's3_arn_key' );
+	?>
+
+	<input name="sm_settings[s3_arn_key]" type="text" id="sm_s3_arn_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
+
+	<?php
 }
 
 /**

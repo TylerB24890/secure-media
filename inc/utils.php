@@ -43,11 +43,13 @@ function get_settings( $setting_key = null ) {
 	$default_bucket = preg_replace( '#[^\w]#', '-', trim( $default_bucket ) );
 
 	$defaults = [
-		's3_secret_access_key' => '',
-		's3_access_key_id'     => '',
-		's3_bucket'            => $default_bucket,
-		's3_region'            => 'us-west-1',
-		's3_serve_from_wp'     => true,
+		's3_secret_access_key'    => '',
+		's3_access_key_id'        => '',
+		's3_bucket'               => $default_bucket,
+		's3_region'               => 'us-west-1',
+		's3_serve_from_wp'        => true,
+		's3_arn_key'              => '',
+		's3_encryption_algorithm' => '',
 	];
 
 	$settings = ( SM_IS_NETWORK ) ? get_site_option( 'sm_settings', [] ) : get_option( 'sm_settings', [] );
@@ -72,5 +74,16 @@ function get_settings( $setting_key = null ) {
  * @return boolean
  */
 function use_iam_role() {
-	return defined( 'SM_IAM_ROLE' ) && SM_IAM_ROLE;
+	return defined( 'SM_SERVER_AUTH' ) && SM_SERVER_AUTH;
+}
+
+/**
+ * Determine if we should provide encryption headers for S3 requests.
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html
+ * @return boolean
+ */
+function s3_is_encrypted() {
+	return defined( 'SM_SERVER_ENCRYPTION' ) && SM_SERVER_ENCRYPTION;
 }
