@@ -86,14 +86,21 @@ class S3Client {
 	public function save( $path, $key, $delete_remote = false ) {
 		$save = false;
 
+		$args = [
+			'Bucket' => Utils\get_settings( 's3_bucket' ),
+			'Key'    => $key,
+			'SaveAs' => $path,
+		];
+
+		// Pass additional parameters if SM_SERVER_ENCRYPTION is true
+		if ( Utils\s3_is_encrypted() ) {
+			$args['SSECustomerAlgorithm'] = Utils\get_settings( 's3_encryption_algorithm' );
+			$args['SSECustomerKey']       = Utils\get_settings( 's3_encryption_key' );
+			$args['SSECustomerKeyMD5']    = ! empty( $args['SSECustomerKey'] ) ? md5( $args['SSECustomerKey'] ) : '';
+		}
+
 		try {
-			$save = $this->s3_client->getObject(
-				[
-					'Bucket' => Utils\get_settings( 's3_bucket' ),
-					'Key'    => $key,
-					'SaveAs' => $path,
-				]
-			);
+			$save = $this->s3_client->getObject( $args );
 		} catch ( Exception $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				trigger_error( $e->getMessage() ); // phpcs:ignore
@@ -116,13 +123,20 @@ class S3Client {
 	public function get( $key ) {
 		$get = false;
 
+		$args = [
+			'Bucket' => Utils\get_settings( 's3_bucket' ),
+			'Key'    => $key,
+		];
+
+		// Pass additional parameters if SM_SERVER_ENCRYPTION is true
+		if ( Utils\s3_is_encrypted() ) {
+			$args['SSECustomerAlgorithm'] = Utils\get_settings( 's3_encryption_algorithm' );
+			$args['SSECustomerKey']       = Utils\get_settings( 's3_encryption_key' );
+			$args['SSECustomerKeyMD5']    = ! empty( $args['SSECustomerKey'] ) ? md5( $args['SSECustomerKey'] ) : '';
+		}
+
 		try {
-			$get = $this->s3_client->getObject(
-				[
-					'Bucket' => Utils\get_settings( 's3_bucket' ),
-					'Key'    => $key,
-				]
-			);
+			$get = $this->s3_client->getObject( $args );
 		} catch ( Exception $e ) {
 			var_dump( $e->getMessage() );
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

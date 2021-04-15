@@ -119,9 +119,9 @@ function ms_settings() {
 			</tr>
 			<?php if ( Utils\s3_is_encrypted() ) : ?>
 				<tr>
-					<th scope="row"><?php esc_html_e( 'ARN Key', 'secure-media' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Encryption Key', 'secure-media' ); ?></th>
 					<td>
-						<input name="sm_settings[s3_arn_key]" type="text" id="sm_s3_arn_key" value="<?php echo esc_attr( $setting['s3_arn_key'] ); ?>" class="regular-text">
+						<input name="sm_settings[s3_encryption_key]" type="text" id="sm_s3_encryption_key" value="<?php echo esc_attr( $setting['s3_encryption_key'] ); ?>" class="regular-text">
 					</td>
 				</tr>
 				<tr>
@@ -219,9 +219,9 @@ function register_settings() {
 	);
 
 	add_settings_field(
-		's3_arn_key',
-		esc_html__( 'ARN Key', 'secure-media' ),
-		__NAMESPACE__ . '\s3_arn_key',
+		's3_encryption_key',
+		esc_html__( 'Encryption Key', 'secure-media' ),
+		__NAMESPACE__ . '\s3_encryption_key',
 		'media',
 		'sm_aws'
 	);
@@ -255,20 +255,20 @@ function s3_encryption_algorithm() {
 }
 
 /**
- * Output S3 ARN Key
+ * Output S3 Encryption Key
  *
  * @since 1.0
  */
-function s3_arn_key() {
+function s3_encryption_key() {
 
 	if ( ! Utils\s3_is_encrypted() ) {
 		return;
 	}
 
-	$value = Utils\get_settings( 's3_arn_key' );
+	$value = Utils\get_settings( 's3_encryption_key' );
 	?>
 
-	<input name="sm_settings[s3_arn_key]" type="text" id="sm_s3_arn_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
+	<input name="sm_settings[s3_encryption_key]" type="text" id="sm_s3_encryption_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
 
 	<?php
 }

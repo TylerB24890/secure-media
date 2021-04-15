@@ -48,7 +48,7 @@ function get_settings( $setting_key = null ) {
 		's3_bucket'               => $default_bucket,
 		's3_region'               => 'us-west-1',
 		's3_serve_from_wp'        => true,
-		's3_arn_key'              => '',
+		's3_encryption_key'       => '',
 		's3_encryption_algorithm' => '',
 	];
 
