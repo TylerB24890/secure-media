@@ -29,23 +29,6 @@ define( 'SM_URL', plugin_dir_url( __FILE__ ) );
 define( 'SM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SM_VERSION', '1.0.5' );
 
-/**
- * Authenticate Secure Media using a pre-authorized server IAM Role
- * or .credentials file
- *
- * @see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2.html
- */
-define( 'SM_SERVER_AUTH', true );
-
-/**
- * Allow the retreival of KMS encrypted S3 assets
- * Passes extra headers with S3 requests
- *
- * @see https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html
- * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html
- */
-define( 'SM_SERVER_ENCRYPTION', true );
-
 require_once __DIR__ . '/inc/utils.php';
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {

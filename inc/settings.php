@@ -58,7 +58,7 @@ function ms_save_settings() {
  */
 function ms_settings() {
 	$setting  = Utils\get_settings();
-	$disabled = Utils\use_iam_role();
+	$disabled = Utils\use_server_auth();
 	?>
 
 	<h2><?php esc_html_e( 'Secure Media', 'secure-media' ); ?></h2>
@@ -117,20 +117,6 @@ function ms_settings() {
 					<input name="sm_settings[s3_serve_from_wp]" type="checkbox" id="sm_s3_serve_from_wp" value="1" <?php checked( true, (bool) $setting['s3_serve_from_wp'] ); ?>> <label for="sm_s3_serve_from_wp"><?php esc_html_e( 'Store and serve public media from WordPress', 'secure-media' ); ?></label>
 				</td>
 			</tr>
-			<?php if ( Utils\s3_is_encrypted() ) : ?>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Encryption Key', 'secure-media' ); ?></th>
-					<td>
-						<input name="sm_settings[s3_encryption_key]" type="text" id="sm_s3_encryption_key" value="<?php echo esc_attr( $setting['s3_encryption_key'] ); ?>" class="regular-text">
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Encryption Algorithm', 'secure-media' ); ?></th>
-					<td>
-						<input name="sm_settings[s3_encryption_algorithm]" type="text" id="sm_s3_encryption_algorithm" value="<?php echo esc_attr( $setting['s3_encryption_algorithm'] ); ?>" class="regular-text">
-					</td>
-				</tr>
-			<?php endif; ?>
 		</tbody>
 	</table>
 
@@ -217,60 +203,6 @@ function register_settings() {
 		'media',
 		'sm_aws'
 	);
-
-	add_settings_field(
-		's3_encryption_key',
-		esc_html__( 'Encryption Key', 'secure-media' ),
-		__NAMESPACE__ . '\s3_encryption_key',
-		'media',
-		'sm_aws'
-	);
-
-	add_settings_field(
-		's3_encryption_algorithm',
-		esc_html__( 'Encryption Algorithm', 'secure-media' ),
-		__NAMESPACE__ . '\s3_encryption_algorithm',
-		'media',
-		'sm_aws'
-	);
-}
-
-/**
- * Output S3 Encryption Algorithm
- *
- * @since 1.0
- */
-function s3_encryption_algorithm() {
-
-	if ( ! Utils\s3_is_encrypted() ) {
-		return;
-	}
-
-	$value = Utils\get_settings( 's3_encryption_algorithm' );
-	?>
-
-	<input name="sm_settings[s3_encryption_algorithm]" type="text" id="sm_s3_encryption_algorithm" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
-
-	<?php
-}
-
-/**
- * Output S3 Encryption Key
- *
- * @since 1.0
- */
-function s3_encryption_key() {
-
-	if ( ! Utils\s3_is_encrypted() ) {
-		return;
-	}
-
-	$value = Utils\get_settings( 's3_encryption_key' );
-	?>
-
-	<input name="sm_settings[s3_encryption_key]" type="text" id="sm_s3_encryption_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text">
-
-	<?php
 }
 
 /**
@@ -294,7 +226,7 @@ function s3_serve_from_wp() {
  */
 function s3_bucket_field() {
 	$value    = Utils\get_settings( 's3_bucket' );
-	$disabled = Utils\use_iam_role();
+	$disabled = Utils\use_server_auth();
 	?>
 
 	<input name="sm_settings[s3_bucket]" type="text" id="sm_s3_bucket" value="<?php echo esc_attr( $value ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>>
@@ -332,7 +264,7 @@ function s3_region_field() {
  */
 function s3_secret_key_field() {
 	$value    = Utils\get_settings( 's3_secret_access_key' );
-	$disabled = Utils\use_iam_role();
+	$disabled = Utils\use_server_auth();
 	?>
 
 	<input name="sm_settings[s3_secret_access_key]" type="password" id="sm_s3_secret_access_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>>
@@ -344,8 +276,6 @@ function s3_secret_key_field() {
 			esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
 			wp_kses( '<code>.credentials</code>', [ 'code' => true ] )
 		);
-	} else {
-		echo esc_html_e( 'Make sure this bucket is created and configured in AWS.', 'secure-media' );
 	}
 }
 
@@ -356,7 +286,7 @@ function s3_secret_key_field() {
  */
 function s3_access_key_field() {
 	$value    = Utils\get_settings( 's3_access_key_id' );
-	$disabled = Utils\use_iam_role();
+	$disabled = Utils\use_server_auth();
 	?>
 
 	<input name="sm_settings[s3_access_key_id]" type="text" id="sm_s3_access_key_id" value="<?php echo esc_attr( $value ); ?>" class="regular-text"<?php echo $disabled ? esc_attr( ' disabled' ) : ''; ?>> 
@@ -368,7 +298,5 @@ function s3_access_key_field() {
 			esc_html__( 'Using instance IAM Role or %s file.', 'secure-media' ),
 			wp_kses( '<code>.credentials</code>', [ 'code' => true ] )
 		);
-	} else {
-		echo esc_html_e( 'Make sure this bucket is created and configured in AWS.', 'secure-media' );
 	}
 }

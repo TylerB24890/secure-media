@@ -37,9 +37,10 @@ class S3Client {
 		$params = array( 'version' => 'latest' );
 
 		/**
-		 * Passing credentials parameters not required when assuming IAM Role
+		 * Passing credentials parameters not required when assuming Server Authentication
+		 * IAM Role or .credentials file
 		 */
-		if ( ! Utils\use_iam_role() ) {
+		if ( ! Utils\use_server_auth() ) {
 			$params['credentials']['key']    = $settings['s3_access_key_id'];
 			$params['credentials']['secret'] = $settings['s3_secret_access_key'];
 		}
@@ -58,14 +59,15 @@ class S3Client {
 	 */
 	public function delete( $key ) {
 		$delete = false;
+		$args   = [ 'Key' => $key ];
+
+		// Bucket not required when using server authentication
+		if ( ! Utils\use_server_auth() ) {
+			$args['Bucket'] = Utils\get_settings( 's3_bucket' );
+		}
 
 		try {
-			$delete = $this->s3_client->deleteObject(
-				[
-					'Bucket' => Utils\get_settings( 's3_bucket' ),
-					'Key'    => $key,
-				]
-			);
+			$delete = $this->s3_client->deleteObject( $args );
 		} catch ( Exception $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				trigger_error( $e->getMessage() ); // phpcs:ignore
@@ -85,18 +87,23 @@ class S3Client {
 	 */
 	public function save( $path, $key, $delete_remote = false ) {
 		$save = false;
-
 		$args = [
-			'Bucket' => Utils\get_settings( 's3_bucket' ),
 			'Key'    => $key,
 			'SaveAs' => $path,
 		];
 
-		// Pass additional parameters if SM_SERVER_ENCRYPTION is true
-		if ( Utils\s3_is_encrypted() ) {
-			$args['SSECustomerAlgorithm'] = Utils\get_settings( 's3_encryption_algorithm' );
-			$args['SSECustomerKey']       = Utils\get_settings( 's3_encryption_key' );
-			$args['SSECustomerKeyMD5']    = ! empty( $args['SSECustomerKey'] ) ? md5( $args['SSECustomerKey'] ) : '';
+		// Bucket not required when using server authentication
+		if ( ! Utils\use_server_auth() ) {
+			$args['Bucket'] = Utils\get_settings( 's3_bucket' );
+		}
+
+		$encrypted = Utils\get_encrypted_key();
+
+		// Pass additional parameters if SM_ENCRYPTION_KEY is defined
+		if ( $encrypted ) {
+			$args['SSECustomerAlgorithm'] = Utils\get_encrypted_algorithm();
+			$args['SSECustomerKey']       = $encrypted;
+			$args['SSECustomerKeyMD5']    = Utils\hash_encrypted_key( $encrypted );
 		}
 
 		try {
@@ -121,18 +128,21 @@ class S3Client {
 	 * @return mixed
 	 */
 	public function get( $key ) {
-		$get = false;
+		$get  = false;
+		$args = [ 'Key' => $key ];
 
-		$args = [
-			'Bucket' => Utils\get_settings( 's3_bucket' ),
-			'Key'    => $key,
-		];
+		// Bucket not required when using server authentication
+		if ( ! Utils\use_server_auth() ) {
+			$args['Bucket'] = Utils\get_settings( 's3_bucket' );
+		}
 
-		// Pass additional parameters if SM_SERVER_ENCRYPTION is true
-		if ( Utils\s3_is_encrypted() ) {
-			$args['SSECustomerAlgorithm'] = Utils\get_settings( 's3_encryption_algorithm' );
-			$args['SSECustomerKey']       = Utils\get_settings( 's3_encryption_key' );
-			$args['SSECustomerKeyMD5']    = ! empty( $args['SSECustomerKey'] ) ? md5( $args['SSECustomerKey'] ) : '';
+		$encrypted = Utils\get_encrypted_key();
+
+		// Pass additional parameters if SM_ENCRYPTION_KEY is defined
+		if ( $encrypted ) {
+			$args['SSECustomerAlgorithm'] = Utils\get_encrypted_algorithm();
+			$args['SSECustomerKey']       = $encrypted;
+			$args['SSECustomerKeyMD5']    = Utils\hash_encrypted_key( $encrypted );
 		}
 
 		try {
@@ -156,15 +166,18 @@ class S3Client {
 	 */
 	public function update_acl( $acl, $key ) {
 		$update = false;
+		$args   = [
+			'Key' => $key,
+			'ACL' => $acl,
+		];
+
+		// Bucket not required when using server authentication
+		if ( ! Utils\use_server_auth() ) {
+			$args['Bucket'] = Utils\get_settings( 's3_bucket' );
+		}
 
 		try {
-			$update = $this->s3_client->putObjectAcl(
-				[
-					'Bucket' => Utils\get_settings( 's3_bucket' ),
-					'Key'    => $key,
-					'ACL'    => $acl,
-				]
-			);
+			$update = $this->s3_client->putObjectAcl( $args );
 		} catch ( Exception $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				trigger_error( $e->getMessage() ); // phpcs:ignore
